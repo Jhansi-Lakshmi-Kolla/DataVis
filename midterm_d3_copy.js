@@ -57,7 +57,7 @@ var map = new Datamap({
 							popupOnHover: false,
 							highlightOnHover: false
 						},
-						fills: {
+						fills: /*{
 							'LOC': '#ff0000',
 							'PerformingArts': '#00ff00',
 							'Creative': '#0000ff',
@@ -66,7 +66,7 @@ var map = new Datamap({
 							'Sports': '#00ffff',
 							'Business/Industry/Travel': '#ffffff',
 							defaultFill: '#EDDC4E'
-						},
+						}*/mapFills,
 						data: {
 							'PerformingArts': {fillKey: 'PerformingArts'},
 							'Creative': {fillKey: 'Creative'},
@@ -74,6 +74,14 @@ var map = new Datamap({
 							'Academic/Edu/Health': {fillKey: 'Academic/Edu/Health'},
 							'Sports': {fillKey: 'Sports'},
 							'Business/Industry/Travel': {fillKey: 'Business/Industry/Travel'},
+							
+							'AppliedArts': {fillKey: 'AppliedArts'},
+							'Architecture': {fillKey: 'Architecture'},
+							'FineArts': {fillKey: 'FineArts'},
+							'PerformingArts': {fillKey: 'PerformingArts'},
+							'Print&Graphics': {fillKey: 'Print&Graphics'},
+							'Academic': {fillKey: 'Academic'},
+							'Other': {fillKey: 'Other'},
 						}
 					});
 					
@@ -91,8 +99,10 @@ var ulanlocationmap = {};
 var fblocs = [];
 var akllocs = [];
 var ulanlocs = [];
-d3.csv("SchichDataS1_FB.csv", function(teamdata) {
-	var result = teamdata.map(function(d) {
+
+function parseAndDrawFB() {
+	d3.csv("SchichDataS1_FB.csv", function(teamdata) {
+		var result = teamdata.map(function(d) {
 								if(parseFloat(d[FB_DYR]) > 0 && 
 												(d[FB_ARTS] == "1" || 
 													d[FB_CREATIVE] == "1" || 
@@ -126,34 +136,36 @@ d3.csv("SchichDataS1_FB.csv", function(teamdata) {
 								}
 								
 							});
-	console.log(Object.size(fblocationmap));
-	for(var i in fblocationmap) {
-		var max_count = Math.max(...Object.values(fblocationmap[i].profession));
-		var max_profession = Object.keys(fblocationmap[i].profession).reduce(function(a, b){ return fblocationmap[i].profession[a] > fblocationmap[i].profession[b] ? a : b });
-		//console.log(max_profession);
-		var locObj = {latitude : fblocationmap[i].latitude,
-						longitude: fblocationmap[i].longitude,
-						radius: 3,
-						fillKey: max_profession,
-						profession: max_profession,
-						Location: fblocationmap[i].loc 
-					};
-		fblocs.push(locObj);
-	}
-	console.log("returned");
-	console.log("fblocs length " + fblocs.length);
-	FBBubbles();
-	/*map.bubbles(fblocs,{
-				popupTemplate:function (geography, data) { 
-					return ['<div class="hoverinfo"><strong>' +  data.Location + '</strong>',
-					'<br/>Profession: ' +  data.profession + '',
-					'</div>'].join('');
-				}
-	});*/
-});
+		console.log(Object.size(fblocationmap));
+		for(var i in fblocationmap) {
+			var max_count = Math.max(...Object.values(fblocationmap[i].profession));
+			var max_profession = Object.keys(fblocationmap[i].profession).reduce(function(a, b){ return fblocationmap[i].profession[a] > fblocationmap[i].profession[b] ? a : b });
+			//console.log(max_profession);
+			var locObj = {latitude : fblocationmap[i].latitude,
+							longitude: fblocationmap[i].longitude,
+							radius: 3,
+							fillKey: max_profession,
+							profession: max_profession,
+							Location: fblocationmap[i].loc 
+						};
+			fblocs.push(locObj);
+		}
+		console.log("returned");
+		console.log("fblocs length " + fblocs.length);
+		FBBubbles();
+		/*map.bubbles(fblocs,{
+					popupTemplate:function (geography, data) { 
+						return ['<div class="hoverinfo"><strong>' +  data.Location + '</strong>',
+						'<br/>Profession: ' +  data.profession + '',
+						'</div>'].join('');
+					}
+		});*/
+	});
+}
 
-d3.csv("SchichDataS3_ULAN.csv", function(teamdata) {
-	var result = teamdata.map(function(d) {
+function parseAndDrawULAN() {
+	d3.csv("SchichDataS3_ULAN.csv", function(teamdata) {
+		var result = teamdata.map(function(d) {
 								if(parseFloat(d[ULAN_DYR]) > 0 && 
 												(d[ULAN_AA] == "1" || 
 												d[ULAN_ARCH] == "1" || 
@@ -174,8 +186,8 @@ d3.csv("SchichDataS3_ULAN.csv", function(teamdata) {
 														ulanlocationmap[key].profession[ULAN_OTHER] = ulanlocationmap[key].profession[ULAN_OTHER] + parseFloat(d[ULAN_OTHER]);
 													} else {
 														ulanlocationmap[key] = {
-															latitude: parseFloat(d[FB_DLOCLAT]),
-															longitude: parseFloat(d[FB_DLOCLONG]),
+															latitude: parseFloat(d[ULAN_DLOCLAT]),
+															longitude: parseFloat(d[ULAN_DLOCLONG]),
 															profession: {},
 															loc: d[FB_DLOC]
 														}
@@ -205,7 +217,11 @@ d3.csv("SchichDataS3_ULAN.csv", function(teamdata) {
 		ulanlocs.push(locObj);
 	}
 	console.log("ulan parsing done with length " + ulanlocs.length);
+	ULANBubbles();
 });
+}
+
+
 
 function FBBubbles() {
 	clearBubbles();
@@ -223,6 +239,7 @@ function FBBubbles() {
 function ULANBubbles() {
 	clearBubbles();
 	console.log("start drawing ulan bubbles " + ulanlocs.length);
+	console.log(ulanlocs);
 	map.bubbles(ulanlocs,{
 				popupTemplate:function (geography, data) { 
 					return ['<div class="hoverinfo"><strong>' +  data.Location + '</strong>',
