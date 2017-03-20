@@ -102,6 +102,10 @@ var ulanlocs = [];
 
 function parseAndDrawFB() {
 	d3.csv("SchichDataS1_FB.csv", function(teamdata) {
+		if (fblocs.length > 0) {
+			FBBubbles();
+			return;
+		} 
 		var result = teamdata.map(function(d) {
 								if(parseFloat(d[FB_DYR]) > 0 && 
 												(d[FB_ARTS] == "1" || 
@@ -165,6 +169,10 @@ function parseAndDrawFB() {
 
 function parseAndDrawULAN() {
 	d3.csv("SchichDataS3_ULAN.csv", function(teamdata) {
+		if (ulanlocs.length > 0) {
+			ULANBubbles();
+			return;
+		} 
 		var result = teamdata.map(function(d) {
 								if(parseFloat(d[ULAN_DYR]) > 0 && 
 												(d[ULAN_AA] == "1" || 
@@ -225,7 +233,7 @@ function parseAndDrawULAN() {
 
 function FBBubbles() {
 	clearBubbles();
-	console.log("start drawing fb bubbles");
+	console.log("start drawing fb bubbles " + fblocs.length);
 	map.bubbles(fblocs,{
 				popupTemplate:function (geography, data) { 
 					return ['<div class="hoverinfo"><strong>' +  data.Location + '</strong>',
